@@ -11,6 +11,7 @@ class OthnielkitCrudServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 Console\Commands\HelloCommand::class,
+                Console\Commands\CrudCommand::class, // Ajout
             ]);
         }
     }
