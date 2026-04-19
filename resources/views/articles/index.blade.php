@@ -1,8 +1,9 @@
-@vite('resources/css/app.css')
+@extends('layouts.app')
 
+@section('content')
 <div class="container mx-auto px-4">
-    <h1 class="text-2xl font-bold mb-4">Liste des {{modelClass}}s</h1>
-    <a href="{{ route('{{table}}.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">Créer</a>
+    <h1 class="text-2xl font-bold mb-4">Liste des {{$modelClass}}s</h1>
+    <a href="{{ route('{{$table}}.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">Créer</a>
 
     <div class="overflow-x-auto">
         <table class="min-w-full bg-white border border-gray-300">
@@ -10,23 +11,23 @@
                 <tr class="bg-gray-100">
                     <th class="py-2 px-4 border-b">ID</th>
                     @foreach ($fields as $field)
-                    <th class="py-2 px-4 border-b">{{ ucfirst($field['name']) }}</th>
+                        <th class="py-2 px-4 border-b">{{ ucfirst($field['name']) }}</th>
                     @endforeach
                     <th class="py-2 px-4 border-b">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (${{modelVarPlural}} as ${{modelVar}})
+                @foreach (${{$modelVarPlural}} as ${{$modelVar}})
                 <tr class="hover:bg-gray-50">
-                    <td class="py-2 px-4 border-b">{{ ${{modelVar}}->id }}</td>
+                    <td class="py-2 px-4 border-b">{{ ${{$modelVar}}->id }}</td>
                     @foreach ($fields as $field)
-                    <td class="py-2 px-4 border-b">
-                        {{ ${{modelVar}}->{$field['name']} }}
-                    </td>
+                        <td class="py-2 px-4 border-b">
+                            {{ ${{$modelVar}}->{$field['name']} }}
+                        </td>
                     @endforeach
                     <td class="py-2 px-4 border-b">
-                        <a href="{{ route('{{table}}.edit', ${{modelVar}}) }}" class="text-yellow-600 hover:text-yellow-900 mr-2">Éditer</a>
-                        <form action="{{ route('{{table}}.destroy', ${{modelVar}}) }}" method="POST" class="inline-block">
+                        <a href="{{ route('{{$table}}.edit', ${{$modelVar}}) }}" class="text-yellow-600 hover:text-yellow-900 mr-2">Éditer</a>
+                        <form action="{{ route('{{$table}}.destroy', ${{$modelVar}}) }}" method="POST" class="inline-block">
                             @csrf @method('DELETE')
                             <button type="submit" class="text-red-600 hover:text-red-900">Supprimer</button>
                         </form>
@@ -37,3 +38,4 @@
         </table>
     </div>
 </div>
+@endsection

@@ -19,11 +19,11 @@ class CrudCommand extends Command
         if ($fieldsInput) {
             $fields = $this->parseFields($fieldsInput);
         } else {
-            // Champs par défaut (compatibilité avec l'ancien comportement)
-            $fields = [
-                ['name' => 'name', 'type' => 'string', 'nullable' => false],
-                ['name' => 'description', 'type' => 'text', 'nullable' => true],
-            ];
+            $fields = $this->askForFieldsInteractively();
+            if (empty($fields)) {
+                $this->error("Aucun champ défini. Génération annulée.");
+                return 1;
+            }
         }
 
         $modelClass = ucfirst(Str::studly($name));
@@ -35,7 +35,7 @@ class CrudCommand extends Command
         $columnsPhp = $this->generateMigrationColumns($fields);
         $fillableArray = $this->generateFillableArray($fields);
         $validationRules = $this->generateValidationRules($fields);
-        $formFields = $fields; // utilisé directement dans les vues
+        $fieldsArray = $this->generateFieldsArray($fields); // pour le contrôleur
 
         // 1. Migration
         $migrationFile = database_path('migrations/' . date('Y_m_d_His') . '_create_' . $table . '_table.php');
@@ -59,6 +59,7 @@ class CrudCommand extends Command
             '{{modelVarPlural}}' => $modelVarPlural,
             '{{table}}' => $table,
             '{{validationRules}}' => $validationRules,
+            '{{fieldsArray}}' => $fieldsArray,
         ]);
 
         // 4. Vues
@@ -73,7 +74,7 @@ class CrudCommand extends Command
             '{{modelVar}}' => $modelVar,
             '{{modelVarPlural}}' => $modelVarPlural,
             '{{table}}' => $table,
-            '{{fields}}' => $fields, // passé au stub
+            '{{fields}}' => $fields,
         ]);
 
         // Create view
@@ -95,10 +96,46 @@ class CrudCommand extends Command
         // 5. Route
         $this->addRoute($table, $modelClass);
 
-        // 6. Base SQLite et migration automatique
+        // 6. Base SQLite et migration
         $this->setupDatabaseAndMigrate();
 
         $this->info("✅ CRUD pour {$modelClass} généré avec succès !");
+    }
+
+    protected function askForFieldsInteractively()
+    {
+        $fields = [];
+        $this->info("Mode interactif : ajoutez les champs un par un. Laissez vide pour terminer.");
+
+        do {
+            $this->line("---");
+            $name = $this->ask("Nom du champ (ex: title, price, is_active)");
+            if (empty($name)) {
+                if (empty($fields)) {
+                    $this->error("Vous devez ajouter au moins un champ.");
+                    continue;
+                }
+                break;
+            }
+
+            $type = $this->choice(
+                "Type du champ '{$name}'",
+                ['string', 'text', 'integer', 'float', 'boolean', 'date'],
+                0
+            );
+
+            $nullable = $this->confirm("Le champ peut-il être nul (nullable) ?", false);
+
+            $fields[] = [
+                'name' => $name,
+                'type' => $type,
+                'nullable' => $nullable,
+            ];
+
+            $this->info("Champ '{$name}' ajouté avec succès.");
+        } while ($this->confirm("Ajouter un autre champ ?", true));
+
+        return $fields;
     }
 
     protected function parseFields($input)
@@ -197,11 +234,13 @@ class CrudCommand extends Command
             }
             $rules[] = "'{$field['name']}' => '{$rule}'";
         }
-        return implode(",\n            ", $rules);
+        return "[\n            " . implode(",\n            ", $rules) . "\n        ]";
     }
 
-    // Les méthodes generateStub, addRoute, setupDatabaseAndMigrate, setupSqlite restent identiques à la version précédente.
-    // Je les recopie ici pour que le fichier soit complet.
+    protected function generateFieldsArray($fields)
+    {
+        return var_export($fields, true);
+    }
 
     protected function generateStub($stubName, $targetPath, $replacements)
     {
@@ -213,8 +252,6 @@ class CrudCommand extends Command
         $content = File::get($stubPath);
         foreach ($replacements as $search => $replace) {
             if (is_array($replace)) {
-                // Pour les champs passés aux vues, on peut les sérialiser en JSON ou les passer tels quels
-                // Les stubs Blade recevront $fields comme variable
                 continue;
             }
             $content = str_replace($search, $replace, $content);

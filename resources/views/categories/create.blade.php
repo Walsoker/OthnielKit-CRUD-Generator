@@ -1,8 +1,8 @@
 @vite('resources/css/app.css')
 
 <div class="container mx-auto px-4 max-w-lg">
-    <h1 class="text-2xl font-bold mb-4">Créer un {{modelClass}}</h1>
-    <form action="{{ route('{{table}}.store') }}" method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <h1 class="text-2xl font-bold mb-4">Créer un Category</h1>
+    <form action="{{ route('categories.store') }}" method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
         @csrf
         @foreach ($fields as $field)
         <div class="mb-4">

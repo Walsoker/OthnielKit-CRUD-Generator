@@ -10,12 +10,14 @@ class {{model}}Controller extends Controller
     public function index()
     {
         ${{modelVarPlural}} = {{model}}::all();
-        return view('{{table}}.index', compact('{{modelVarPlural}}'));
+        $fields = {{fieldsArray}};
+        return view('{{table}}.index', compact('{{modelVarPlural}}', 'fields'));
     }
 
     public function create()
     {
-        return view('{{table}}.create');
+        $fields = {{fieldsArray}};
+        return view('{{table}}.create', compact('fields'));
     }
 
     public function store(Request $request)
@@ -27,7 +29,8 @@ class {{model}}Controller extends Controller
 
     public function edit({{model}} ${{modelVar}})
     {
-        return view('{{table}}.edit', compact('{{modelVar}}'));
+        $fields = {{fieldsArray}};
+        return view('{{table}}.edit', compact('{{modelVar}}', 'fields'));
     }
 
     public function update(Request $request, {{model}} ${{modelVar}})
