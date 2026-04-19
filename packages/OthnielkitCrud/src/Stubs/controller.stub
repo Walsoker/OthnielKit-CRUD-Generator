@@ -20,10 +20,8 @@ class {{model}}Controller extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-        {{model}}::create($request->all());
+        $validated = $request->validate({{validationRules}});
+        {{model}}::create($validated);
         return redirect()->route('{{table}}.index');
     }
 
@@ -34,10 +32,8 @@ class {{model}}Controller extends Controller
 
     public function update(Request $request, {{model}} ${{modelVar}})
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-        ${{modelVar}}->update($request->all());
+        $validated = $request->validate({{validationRules}});
+        ${{modelVar}}->update($validated);
         return redirect()->route('{{table}}.index');
     }
 
