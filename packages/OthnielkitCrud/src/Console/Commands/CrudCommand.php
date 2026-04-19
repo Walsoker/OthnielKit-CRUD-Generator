@@ -70,8 +70,10 @@ class CrudCommand extends Command
         // 5. Route
         $this->addRoute($table, $modelClass);
 
+        // 6. Base SQLite et migration automatique
+        $this->setupDatabaseAndMigrate();
+
         $this->info("✅ CRUD pour {$modelClass} généré avec succès !");
-        $this->warn("N'oubliez pas de lancer : php artisan migrate");
     }
 
     protected function generateStub($stubName, $targetPath, $replacements)
@@ -97,6 +99,49 @@ class CrudCommand extends Command
         if (!Str::contains($content, $routeLine)) {
             File::append($routePath, "\n{$routeLine}\n");
             $this->info("Route ajoutée dans routes/web.php");
+        }
+    }
+
+    protected function setupDatabaseAndMigrate()
+    {
+        // Si aucune base n'est configurée, on force SQLite
+        if (!env('DB_CONNECTION') || env('DB_CONNECTION') === 'sqlite') {
+            $this->setupSqlite();
+        }
+
+        $this->call('migrate');
+    }
+
+    protected function setupSqlite()
+    {
+        $databasePath = database_path('database.sqlite');
+        if (!File::exists($databasePath)) {
+            File::put($databasePath, '');
+            $this->info("✅ Fichier SQLite créé : {$databasePath}");
+        }
+
+        // Modifier .env pour utiliser SQLite
+        $envPath = base_path('.env');
+        if (File::exists($envPath)) {
+            $envContent = File::get($envPath);
+            // Remplacer ou ajouter DB_CONNECTION
+            if (preg_match('/^DB_CONNECTION=/m', $envContent)) {
+                $envContent = preg_replace('/^DB_CONNECTION=.*/m', 'DB_CONNECTION=sqlite', $envContent);
+            } else {
+                $envContent .= "\nDB_CONNECTION=sqlite\n";
+            }
+            // Remplacer ou ajouter DB_DATABASE
+            if (preg_match('/^DB_DATABASE=/m', $envContent)) {
+                $envContent = preg_replace('/^DB_DATABASE=.*/m', 'DB_DATABASE=' . $databasePath, $envContent);
+            } else {
+                $envContent .= "DB_DATABASE={$databasePath}\n";
+            }
+            File::put($envPath, $envContent);
+            $this->info("✅ Configuration SQLITE ajoutée dans .env");
+        } else {
+            // Si .env n'existe pas, on le crée basique
+            File::put($envPath, "APP_ENV=local\nDB_CONNECTION=sqlite\nDB_DATABASE={$databasePath}\n");
+            $this->info("✅ Fichier .env créé avec SQLite");
         }
     }
 }
