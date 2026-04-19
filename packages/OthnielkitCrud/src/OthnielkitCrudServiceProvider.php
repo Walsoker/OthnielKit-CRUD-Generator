@@ -8,7 +8,11 @@ class OthnielkitCrudServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        // Les commandes seront enregistrées ici plus tard
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                Console\Commands\HelloCommand::class,
+            ]);
+        }
     }
 
     public function register()
