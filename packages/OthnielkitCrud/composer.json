@@ -1,0 +1,19 @@
+{
+    "name": "othnielkit/crud",
+    "description": "Générateur CRUD complet pour Laravel",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Othnielkit\\Crud\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Othnielkit\\Crud\\OthnielkitCrudServiceProvider"
+            ]
+        }
+    },
+    "require": {}
+}

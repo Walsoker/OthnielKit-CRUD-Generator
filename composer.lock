@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "53b5d56b3b7e3cbac1713e68c8850f6c",
+    "content-hash": "ca93f9a7469bc9cb0d90e89f1f8abd06",
     "packages": [
         {
             "name": "brick/math",
@@ -2530,6 +2530,35 @@
                 }
             ],
             "time": "2026-02-16T23:10:27+00:00"
+        },
+        {
+            "name": "othnielkit/crud",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/OthnielkitCrud",
+                "reference": "8fc91b50ac349fbff8b1eb55458828e17f4fa4fb"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Othnielkit\\Crud\\OthnielkitCrudServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Othnielkit\\Crud\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Générateur CRUD complet pour Laravel",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "phpoption/phpoption",
@@ -8388,7 +8417,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "othnielkit/crud": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
